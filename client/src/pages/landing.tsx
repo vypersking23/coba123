@@ -115,7 +115,7 @@ export default function Landing() {
   const packageCards = useMemo(() => packageItems.slice(0, 3), [packageItems]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background circuit-overlay">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between px-4">
@@ -185,7 +185,7 @@ export default function Landing() {
                 return (
                   <div
                     key={pkg.id}
-                    className={`relative flex flex-col rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden ${
+                    className={`relative flex flex-col rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden glass ${
                       pkg.isPopular ? "ring-2 ring-primary shadow-lg" : ""
                     }`}
                   >
@@ -298,7 +298,7 @@ export default function Landing() {
                 return (
                   <div
                     key={item.id}
-                    className="group relative flex flex-col overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm"
+                    className="group relative flex flex-col overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm glass"
                   >
                     <div className="absolute right-2 top-2 z-10">
                       <span

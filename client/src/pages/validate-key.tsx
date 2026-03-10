@@ -169,7 +169,7 @@ export default function ValidateKey() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background circuit-overlay">
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
         <div className="container flex h-14 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2 font-serif text-lg font-bold">
@@ -185,7 +185,7 @@ export default function ValidateKey() {
       </header>
 
       <main className="container flex flex-col items-center px-4 py-12 md:py-20">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md glass">
           <CardHeader className="text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10">
               <Key className="h-7 w-7 text-primary" />
