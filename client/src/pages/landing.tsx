@@ -247,12 +247,6 @@ export default function Landing() {
                                   <span className="text-muted-foreground text-sm">No image</span>
                                 </div>
                               )}
-                              <CarouselPrevious
-                                className="absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full border border-primary/40 bg-background/60 backdrop-blur shadow-[0_0_10px_hsl(var(--primary)/0.6)] hover:shadow-[0_0_18px_hsl(var(--primary)/0.9)]"
-                              />
-                              <CarouselNext
-                                className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full border border-primary/40 bg-background/60 backdrop-blur shadow-[0_0_10px_hsl(var(--primary)/0.6)] hover:shadow-[0_0_18px_hsl(var(--primary)/0.9)]"
-                              />
                             </div>
                             <div className="p-5 flex flex-1 flex-col">
                               <h3 className="font-semibold text-lg">{pkg.title}</h3>
@@ -271,6 +265,12 @@ export default function Landing() {
                                 </a>
                               </Button>
                             </div>
+                            <CarouselPrevious
+                              className="absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full border border-primary/40 bg-background/60 backdrop-blur shadow-[0_0_10px_hsl(var(--primary)/0.6)] hover:shadow-[0_0_18px_hsl(var(--primary)/0.9)]"
+                            />
+                            <CarouselNext
+                              className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full border border-primary/40 bg-background/60 backdrop-blur shadow-[0_0_10px_hsl(var(--primary)/0.6)] hover:shadow-[0_0_18px_hsl(var(--primary)/0.9)]"
+                            />
                           </div>
                         </div>
                       </CarouselItem>
@@ -436,12 +436,6 @@ export default function Landing() {
                                 <span className="text-muted-foreground text-sm">No video</span>
                               </div>
                             )}
-                            <CarouselPrevious
-                              className="absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full border border-primary/40 bg-background/60 backdrop-blur shadow-[0_0_10px_hsl(var(--primary)/0.6)] hover:shadow-[0_0_18px_hsl(var(--primary)/0.9)]"
-                            />
-                            <CarouselNext
-                              className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full border border-primary/40 bg-background/60 backdrop-blur shadow-[0_0_10px_hsl(var(--primary)/0.6)] hover:shadow-[0_0_18px_hsl(var(--primary)/0.9)]"
-                            />
                           </div>
                           <div className="flex flex-1 flex-col p-4">
                             <h3 className="font-semibold text-lg">{item.scriptName}</h3>
@@ -461,6 +455,12 @@ export default function Landing() {
                               </li>
                             </ul>
                           </div>
+                          <CarouselPrevious
+                            className="absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full border border-primary/40 bg-background/60 backdrop-blur shadow-[0_0_10px_hsl(var(--primary)/0.6)] hover:shadow-[0_0_18px_hsl(var(--primary)/0.9)]"
+                          />
+                          <CarouselNext
+                            className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full border border-primary/40 bg-background/60 backdrop-blur shadow-[0_0_10px_hsl(var(--primary)/0.6)] hover:shadow-[0_0_18px_hsl(var(--primary)/0.9)]"
+                          />
                         </div>
                       </CarouselItem>
                     );
