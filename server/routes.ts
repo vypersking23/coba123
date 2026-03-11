@@ -763,8 +763,9 @@ export async function registerRoutes(
       res.json(items);
     } catch (error) {
       console.error("Teams error:", error);
-      if ((error as any)?.code === "42P01") {
-        return res.status(500).json({ message: "Database belum di-migrate. Jalankan npm run db:push." });
+      const code = (error as any)?.code;
+      if (code === "42P01" || code === "42703") {
+        return res.status(500).json({ message: "Database belum di-update untuk fitur Teams. Jalankan npm run db:push." });
       }
       res.status(500).json({ message: "Internal server error" });
     }
@@ -780,8 +781,9 @@ export async function registerRoutes(
         return res.status(400).json({ message: error.errors[0].message });
       }
       console.error("Create team error:", error);
-      if ((error as any)?.code === "42P01") {
-        return res.status(500).json({ message: "Database belum di-migrate. Jalankan npm run db:push." });
+      const code = (error as any)?.code;
+      if (code === "42P01" || code === "42703") {
+        return res.status(500).json({ message: "Database belum di-update untuk fitur Teams. Jalankan npm run db:push." });
       }
       res.status(500).json({ message: "Internal server error" });
     }
@@ -800,8 +802,9 @@ export async function registerRoutes(
         return res.status(400).json({ message: error.errors[0].message });
       }
       console.error("Update team error:", error);
-      if ((error as any)?.code === "42P01") {
-        return res.status(500).json({ message: "Database belum di-migrate. Jalankan npm run db:push." });
+      const code = (error as any)?.code;
+      if (code === "42P01" || code === "42703") {
+        return res.status(500).json({ message: "Database belum di-update untuk fitur Teams. Jalankan npm run db:push." });
       }
       res.status(500).json({ message: "Internal server error" });
     }
@@ -816,8 +819,9 @@ export async function registerRoutes(
       res.json({ message: "Deleted" });
     } catch (error) {
       console.error("Delete team error:", error);
-      if ((error as any)?.code === "42P01") {
-        return res.status(500).json({ message: "Database belum di-migrate. Jalankan npm run db:push." });
+      const code = (error as any)?.code;
+      if (code === "42P01" || code === "42703") {
+        return res.status(500).json({ message: "Database belum di-update untuk fitur Teams. Jalankan npm run db:push." });
       }
       res.status(500).json({ message: "Internal server error" });
     }
