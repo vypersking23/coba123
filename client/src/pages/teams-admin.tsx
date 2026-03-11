@@ -14,6 +14,7 @@ type TeamForm = {
   fullName: string;
   role: string;
   photoUrl: string;
+  accent: string;
   description: string;
   instagram: string;
   linkedin: string;
@@ -30,6 +31,7 @@ const defaultForm: TeamForm = {
   fullName: "",
   role: "",
   photoUrl: "",
+  accent: "primary",
   description: "",
   instagram: "",
   linkedin: "",
@@ -40,6 +42,24 @@ const defaultForm: TeamForm = {
   skill3: "",
   skill4: "",
   sortOrder: 0,
+};
+
+const ACCENT_LABEL: Record<string, string> = {
+  primary: "Primary",
+  gold: "Gold",
+  emerald: "Emerald",
+  sky: "Sky",
+  violet: "Violet",
+  rose: "Rose",
+};
+
+const ACCENT_DOT: Record<string, string> = {
+  primary: "bg-primary",
+  gold: "bg-amber-500",
+  emerald: "bg-emerald-500",
+  sky: "bg-sky-500",
+  violet: "bg-violet-500",
+  rose: "bg-rose-500",
 };
 
 function normalizeUrl(value: string): string {
@@ -61,6 +81,7 @@ function buildPayload(form: TeamForm) {
     fullName: trimOrEmpty(form.fullName),
     role: trimOrEmpty(form.role),
     photoUrl: trimOrEmpty(form.photoUrl),
+    accent: form.accent,
     description: emptyToUndefined(form.description),
     instagram: form.instagram.trim() ? normalizeUrl(form.instagram) : undefined,
     linkedin: form.linkedin.trim() ? normalizeUrl(form.linkedin) : undefined,
@@ -149,6 +170,7 @@ export default function TeamsAdmin() {
       fullName: item.fullName,
       role: item.role,
       photoUrl: item.photoUrl,
+      accent: item.accent ?? "primary",
       description: item.description ?? "",
       instagram: item.instagram ?? "",
       linkedin: item.linkedin ?? "",
@@ -222,7 +244,11 @@ export default function TeamsAdmin() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold">{item.fullName}</p>
-                    <p className="text-sm text-muted-foreground">{item.role}</p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                      <span className={`h-2 w-2 rounded-full ${ACCENT_DOT[item.accent] ?? "bg-muted-foreground"}`} />
+                      <span className="truncate">{item.role}</span>
+                      <span className="text-xs text-muted-foreground/70">· {ACCENT_LABEL[item.accent] ?? item.accent}</span>
+                    </p>
                     {item.description ? (
                       <p className="mt-1 line-clamp-2 text-sm text-muted-foreground/90">{item.description}</p>
                     ) : null}
@@ -255,6 +281,39 @@ export default function TeamsAdmin() {
             <DialogTitle>{editing ? "Edit Anggota" : "Tambah Anggota"}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label>Warna Card / Jabatan</Label>
+              <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {[
+                  { v: "primary", label: "Primary", bar: "from-primary to-secondary" },
+                  { v: "gold", label: "Gold", bar: "from-amber-400 to-orange-600" },
+                  { v: "emerald", label: "Emerald", bar: "from-emerald-400 to-teal-500" },
+                  { v: "sky", label: "Sky", bar: "from-sky-400 to-indigo-500" },
+                  { v: "violet", label: "Violet", bar: "from-violet-500 to-fuchsia-500" },
+                  { v: "rose", label: "Rose", bar: "from-rose-500 to-pink-500" },
+                ].map((c) => (
+                  <button
+                    key={c.v}
+                    type="button"
+                    onClick={() => setForm((p) => ({ ...p, accent: c.v }))}
+                    className={`relative overflow-hidden rounded-lg border p-3 text-left transition ${
+                      form.accent === c.v ? "ring-2 ring-primary" : "hover:bg-muted/50"
+                    }`}
+                  >
+                    <div className={`h-1.5 w-full rounded-full bg-gradient-to-r ${c.bar}`} />
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <span className="text-sm font-medium">{c.label}</span>
+                      {form.accent === c.v ? (
+                        <span className="text-xs text-primary">Selected</span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Pick</span>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="grid gap-3 sm:grid-cols-[7rem_1fr]">
               <div className="sm:row-span-3">
                 <Label>Foto URL</Label>

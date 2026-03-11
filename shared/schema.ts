@@ -80,6 +80,7 @@ export const teams = pgTable("teams", {
   fullName: text("full_name").notNull(),
   role: text("role").notNull(),
   photoUrl: text("photo_url").notNull(),
+  accent: text("accent").default("primary").notNull(),
   description: text("description"),
   instagram: text("instagram"),
   linkedin: text("linkedin"),

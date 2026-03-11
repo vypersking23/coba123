@@ -13,6 +13,10 @@ import {
   Play,
   ChevronLeft,
   ChevronRight,
+  Instagram,
+  Linkedin,
+  Github,
+  Twitter,
   Heart,
   Eye,
   Gift,
@@ -64,6 +68,60 @@ function getYoutubeId(url: string | null): string {
 }
 
 const DISCORD_INVITE = "https://discord.gg/vGT2km9gh";
+
+const TEAM_ACCENT_STYLES: Record<
+  string,
+  {
+    topBar: string;
+    rolePill: string;
+    avatarRing: string;
+    iconButton: string;
+    glow: string;
+  }
+> = {
+  primary: {
+    topBar: "from-primary to-secondary",
+    rolePill: "bg-primary/15 text-primary border-primary/25",
+    avatarRing: "ring-primary/30",
+    iconButton: "hover:bg-primary/10 hover:text-primary",
+    glow: "from-primary/25 to-secondary/10",
+  },
+  gold: {
+    topBar: "from-amber-400 to-orange-600",
+    rolePill: "bg-amber-500/15 text-amber-400 border-amber-500/25",
+    avatarRing: "ring-amber-500/25",
+    iconButton: "hover:bg-amber-500/10 hover:text-amber-400",
+    glow: "from-amber-500/25 to-orange-500/10",
+  },
+  emerald: {
+    topBar: "from-emerald-400 to-teal-500",
+    rolePill: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",
+    avatarRing: "ring-emerald-500/25",
+    iconButton: "hover:bg-emerald-500/10 hover:text-emerald-400",
+    glow: "from-emerald-500/25 to-teal-500/10",
+  },
+  sky: {
+    topBar: "from-sky-400 to-indigo-500",
+    rolePill: "bg-sky-500/15 text-sky-400 border-sky-500/25",
+    avatarRing: "ring-sky-500/25",
+    iconButton: "hover:bg-sky-500/10 hover:text-sky-400",
+    glow: "from-sky-500/25 to-indigo-500/10",
+  },
+  violet: {
+    topBar: "from-violet-500 to-fuchsia-500",
+    rolePill: "bg-violet-500/15 text-violet-400 border-violet-500/25",
+    avatarRing: "ring-violet-500/25",
+    iconButton: "hover:bg-violet-500/10 hover:text-violet-400",
+    glow: "from-violet-500/25 to-fuchsia-500/10",
+  },
+  rose: {
+    topBar: "from-rose-500 to-pink-500",
+    rolePill: "bg-rose-500/15 text-rose-400 border-rose-500/25",
+    avatarRing: "ring-rose-500/25",
+    iconButton: "hover:bg-rose-500/10 hover:text-rose-400",
+    glow: "from-rose-500/25 to-pink-500/10",
+  },
+};
 
 function MobileCarouselControls({ api }: { api: any }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -688,48 +746,113 @@ export default function Landing() {
             <p className="text-center text-muted-foreground mb-8 md:mb-10">Kenal lebih dekat dengan orang-orang di balik KingVypers</p>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {teams.map((m) => (
-                <div key={m.id} className="group relative rounded-xl border bg-card p-5 shadow-sm glass">
-                  <div className="flex items-center gap-4">
-                    <div className="h-16 w-16 overflow-hidden rounded-full bg-muted ring-2 ring-background/60 shadow">
-                      {m.photoUrl ? <img src={m.photoUrl} alt={m.fullName} className="h-full w-full object-cover" /> : null}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate font-semibold">{m.fullName}</p>
-                      <p className="truncate text-sm text-primary">{m.role}</p>
-                    </div>
-                  </div>
-                  {m.description ? (
-                    <p className="mt-3 text-sm text-muted-foreground">{m.description}</p>
-                  ) : null}
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {[m.skill1, m.skill2, m.skill3, m.skill4].filter(Boolean).map((s, i) => (
-                      <span key={i} className="rounded-full bg-muted px-2 py-0.5 text-xs">{s}</span>
-                    ))}
-                  </div>
-                  {(m.instagram || m.linkedin || m.github || m.twitter) && (
-                    <div className="mt-4 flex items-center gap-3">
-                      {m.instagram && (
-                        <a href={m.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-muted-foreground hover:text-foreground transition">
-                          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><path d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm10 2a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h10zm-5 3a5 5 0 1 0 .001 10.001A5 5 0 0 0 12 7zm0 2a3 3 0 1 1-.001 6.001A3 3 0 0 1 12 9zm5.5-2.75a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0z"/></svg>
-                        </a>
-                      )}
-                      {m.linkedin && (
-                        <a href={m.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="text-muted-foreground hover:text-foreground transition">
-                          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><path d="M19 3A2.94 2.94 0 0 1 22 6v12a2.94 2.94 0 0 1-3 3H5a2.94 2.94 0 0 1-3-3V6a2.94 2.94 0 0 1 3-3h14zM8.34 17v-6H6v6h2.34zM7.17 9.21a1.37 1.37 0 1 0 0-2.74 1.37 1.37 0 0 0 0 2.74zM18 17v-3.2c0-1.71-.9-2.8-2.35-2.8a2 2 0 0 0-1.8 1h-.06V11H11s.03.97 0 6H13.1v-3.36c0-.18.01-.36.07-.49.16-.36.53-.73 1.15-.73.81 0 1.14.55 1.14 1.36V17H18z"/></svg>
-                        </a>
-                      )}
-                      {m.github && (
-                        <a href={m.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="text-muted-foreground hover:text-foreground transition">
-                          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><path d="M12 .5A12 12 0 0 0 0 12.62c0 5.35 3.44 9.88 8.2 11.48.6.12.82-.27.82-.6v-2.1c-3.34.74-4.04-1.65-4.04-1.65-.55-1.42-1.34-1.8-1.34-1.8-1.1-.78.08-.76.08-.76 1.22.09 1.87 1.28 1.87 1.28 1.08 1.9 2.84 1.35 3.53 1.03.11-.8.42-1.35.76-1.66-2.67-.31-5.48-1.38-5.48-6.14 0-1.36.46-2.47 1.22-3.34-.12-.31-.53-1.56.12-3.25 0 0 1-.33 3.3 1.27a11.1 11.1 0 0 1 6 0C16.4 4.19 17.4 4.52 17.4 4.52c.65 1.69.24 2.94.12 3.25.76.87 1.22 1.98 1.22 3.34 0 4.78-2.82 5.82-5.5 6.12.44.38.82 1.12.82 2.26v3.36c0 .33.22.73.83.6A12.13 12.13 0 0 0 24 12.62 12 12 0 0 0 12 .5z"/></svg>
-                        </a>
-                      )}
-                      {m.twitter && (
-                        <a href={m.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="text-muted-foreground hover:text-foreground transition">
-                          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><path d="M22.46 6c-.77.35-1.6.58-2.46.69a4.2 4.2 0 0 0 1.85-2.33 8.27 8.27 0 0 1-2.64 1.01 4.14 4.14 0 0 0-7.06 3.78A11.74 11.74 0 0 1 3.15 4.9a4.12 4.12 0 0 0 1.28 5.52c-.64-.02-1.25-.2-1.78-.49v.05a4.15 4.15 0 0 0 3.32 4.07c-.3.08-.62.12-.95.12-.23 0-.46-.02-.68-.06a4.15 4.15 0 0 0 3.87 2.88A8.34 8.34 0 0 1 2 19.54 11.77 11.77 0 0 0 8.29 21c7.55 0 11.69-6.26 11.69-11.69l-.01-.53A8.36 8.36 0 0 0 22.46 6z"/></svg>
-                        </a>
-                      )}
-                    </div>
-                  )}
+                <div
+                  key={m.id}
+                  className="group relative overflow-hidden rounded-2xl border bg-card/70 shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  {(() => {
+                    const style = TEAM_ACCENT_STYLES[m.accent ?? ""] ?? TEAM_ACCENT_STYLES.primary;
+                    return (
+                      <>
+                        <div className={cn("h-1.5 w-full bg-gradient-to-r", style.topBar)} />
+                        <div className="relative p-5">
+                          <div className={cn("pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-gradient-to-br blur-3xl", style.glow)} />
+                          <div className="flex items-start gap-4">
+                            <div
+                              className={cn(
+                                "h-16 w-16 overflow-hidden rounded-2xl bg-muted ring-2 ring-background/70 shadow relative",
+                                style.avatarRing,
+                              )}
+                            >
+                              {m.photoUrl ? <img src={m.photoUrl} alt={m.fullName} className="h-full w-full object-cover" /> : null}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between gap-2">
+                                <p className="truncate text-base font-semibold">{m.fullName}</p>
+                                <span className={cn("inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-xs font-medium", style.rolePill)}>
+                                  {m.role}
+                                </span>
+                              </div>
+                              {m.description ? (
+                                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{m.description}</p>
+                              ) : null}
+                            </div>
+                          </div>
+
+                          {[m.skill1, m.skill2, m.skill3, m.skill4].filter(Boolean).length > 0 ? (
+                            <div className="mt-4 flex flex-wrap gap-2">
+                              {[m.skill1, m.skill2, m.skill3, m.skill4].filter(Boolean).map((s, i) => (
+                                <span key={i} className="rounded-full border bg-muted/40 px-2.5 py-1 text-xs text-foreground/90">
+                                  {s}
+                                </span>
+                              ))}
+                            </div>
+                          ) : null}
+
+                          {(m.instagram || m.linkedin || m.github || m.twitter) && (
+                            <div className="mt-5 flex items-center gap-2">
+                              {m.instagram && (
+                                <a
+                                  href={m.instagram}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  aria-label="Instagram"
+                                  className={cn(
+                                    "inline-flex h-9 w-9 items-center justify-center rounded-full border bg-background/50 text-muted-foreground transition",
+                                    style.iconButton,
+                                  )}
+                                >
+                                  <Instagram className="h-4 w-4" />
+                                </a>
+                              )}
+                              {m.linkedin && (
+                                <a
+                                  href={m.linkedin}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  aria-label="LinkedIn"
+                                  className={cn(
+                                    "inline-flex h-9 w-9 items-center justify-center rounded-full border bg-background/50 text-muted-foreground transition",
+                                    style.iconButton,
+                                  )}
+                                >
+                                  <Linkedin className="h-4 w-4" />
+                                </a>
+                              )}
+                              {m.github && (
+                                <a
+                                  href={m.github}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  aria-label="GitHub"
+                                  className={cn(
+                                    "inline-flex h-9 w-9 items-center justify-center rounded-full border bg-background/50 text-muted-foreground transition",
+                                    style.iconButton,
+                                  )}
+                                >
+                                  <Github className="h-4 w-4" />
+                                </a>
+                              )}
+                              {m.twitter && (
+                                <a
+                                  href={m.twitter}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  aria-label="Twitter"
+                                  className={cn(
+                                    "inline-flex h-9 w-9 items-center justify-center rounded-full border bg-background/50 text-muted-foreground transition",
+                                    style.iconButton,
+                                  )}
+                                >
+                                  <Twitter className="h-4 w-4" />
+                                </a>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               ))}
             </div>
