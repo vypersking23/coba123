@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { Plus, Loader2, Copy, Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,14 +19,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import type { Key } from "@shared/schema";
+import type { Key, Package } from "@shared/schema";
 
 const generateSchema = z.object({
   durationMonths: z.number().min(1).max(12),
   price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
   quantity: z.number().min(1).max(100),
+  packageId: z.number().int().positive().optional(),
   notes: z.string().optional(),
 });
 
@@ -45,12 +47,22 @@ export default function Generate() {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const { toast } = useToast();
 
+  const { data: packages = [] } = useQuery<Package[]>({
+    queryKey: ["/api/packages"],
+    queryFn: async () => {
+      const res = await fetch("/api/packages");
+      if (!res.ok) return [];
+      return res.json();
+    },
+  });
+
   const form = useForm<GenerateFormData>({
     resolver: zodResolver(generateSchema),
     defaultValues: {
       durationMonths: 1,
       price: "9.99",
       quantity: 1,
+      packageId: undefined,
       notes: "",
     },
   });
@@ -158,15 +170,11 @@ export default function Generate() {
                     name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Price (USD)</FormLabel>
+                        <FormLabel>Price</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                              $
-                            </span>
                             <Input
                               placeholder="9.99"
-                              className="pl-7"
                               data-testid="input-price"
                               {...field}
                             />
@@ -200,6 +208,38 @@ export default function Generate() {
                     )}
                   />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="packageId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Package (Stock)</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value ? String(field.value) : "none"}
+                          onValueChange={(val) => field.onChange(val === "none" ? undefined : parseInt(val))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih package (opsional)" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">Generic stock (no package)</SelectItem>
+                            {packages.map((p) => (
+                              <SelectItem key={p.id} value={String(p.id)}>
+                                {p.title}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormDescription>
+                        Kalau diisi, key akan jadi stok khusus package itu (lebih aman untuk assign).
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}

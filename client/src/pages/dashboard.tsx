@@ -17,6 +17,11 @@ interface DashboardStats {
   chartData: { date: string; activations: number }[];
 }
 
+function formatIdr(value: string | number): string {
+  const n = typeof value === "string" ? parseFloat(String(value).replace(/,/g, "")) || 0 : Number(value);
+  return new Intl.NumberFormat("id-ID").format(n);
+}
+
 function StatCard({
   title,
   value,
@@ -74,8 +79,11 @@ function getStatusBadge(status: string) {
       return <Badge variant="default" className="bg-chart-2">Active</Badge>;
     case "expired":
       return <Badge variant="destructive">Expired</Badge>;
+    case "available":
     case "unused":
-      return <Badge variant="secondary">Unused</Badge>;
+      return <Badge variant="secondary">Available</Badge>;
+    case "sold":
+      return <Badge variant="outline">Sold</Badge>;
     case "blacklisted":
       return <Badge variant="outline" className="border-destructive text-destructive">Blacklisted</Badge>;
     default:
@@ -86,6 +94,20 @@ function getStatusBadge(status: string) {
 export default function Dashboard() {
   const { data: stats, isLoading } = useQuery<DashboardStats>({
     queryKey: ["/api/dashboard/stats"],
+  });
+
+  const { data: stockData, isLoading: stockLoading } = useQuery<{
+    items: Array<{
+      id: number;
+      title: string;
+      durationDays: number;
+      price: string;
+      exactAvailable: number;
+      genericAvailable: number;
+      totalAvailable: number;
+    }>;
+  }>({
+    queryKey: ["/api/stocks/packages"],
   });
 
   return (
@@ -218,6 +240,58 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Sisa Stok per Package</CardTitle>
+          <CardDescription>Jumlah key available (package-specific + generic yang match)</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {stockLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Package</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Exact</TableHead>
+                  <TableHead>Generic</TableHead>
+                  <TableHead>Total</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(stockData?.items || []).length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground">
+                      Belum ada data stok.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  (stockData?.items || []).map((s) => (
+                    <TableRow key={s.id}>
+                      <TableCell>
+                        <div className="font-medium">{s.title}</div>
+                        <div className="text-xs text-muted-foreground">{s.durationDays} hari</div>
+                      </TableCell>
+                      <TableCell>IDR {formatIdr(s.price)}</TableCell>
+                      <TableCell>{s.exactAvailable}</TableCell>
+                      <TableCell>{s.genericAvailable}</TableCell>
+                      <TableCell>
+                        <Badge variant={s.totalAvailable > 0 ? "secondary" : "outline"}>{s.totalAvailable}</Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

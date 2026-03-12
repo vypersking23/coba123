@@ -159,12 +159,16 @@ export default function ValidateKey() {
     active: "Aktif",
     expired: "Kadaluarsa",
     blacklisted: "Blacklist",
-    unused: "Belum dipakai",
+    available: "Tersedia",
+    sold: "Sudah dibeli",
+    unused: "Tersedia",
   };
   const statusIcon: Record<string, React.ReactNode> = {
     active: <CheckCircle2 className="h-4 w-4 text-chart-2" />,
     expired: <XCircle className="h-4 w-4 text-destructive" />,
     blacklisted: <Ban className="h-4 w-4 text-destructive" />,
+    available: <Clock className="h-4 w-4 text-muted-foreground" />,
+    sold: <Clock className="h-4 w-4 text-muted-foreground" />,
     unused: <Clock className="h-4 w-4 text-muted-foreground" />,
   };
 

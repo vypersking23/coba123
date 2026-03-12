@@ -34,6 +34,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { Showcase } from "@shared/schema";
@@ -71,15 +79,21 @@ export default function ShowcaseAdmin() {
   const [form, setForm] = useState(defaultForm);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { toast } = useToast();
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
 
-  const { data: items = [], isLoading } = useQuery<Showcase[]>({
-    queryKey: ["/api/showcase"],
+  const { data, isLoading } = useQuery<{ items: Showcase[]; total: number }>({
+    queryKey: ["/api/showcase", page],
     queryFn: async () => {
-      const res = await fetch("/api/showcase");
+      const offset = (page - 1) * pageSize;
+      const res = await fetch(`/api/showcase?limit=${pageSize}&offset=${offset}`);
       if (!res.ok) throw new Error(await res.text());
       return res.json();
     },
   });
+  const items = data?.items || [];
+  const total = data?.total || 0;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   const createMutation = useMutation({
     mutationFn: (data: typeof defaultForm) =>
@@ -89,6 +103,7 @@ export default function ShowcaseAdmin() {
       toast({ title: "Showcase added" });
       setDialogOpen(false);
       setForm(defaultForm);
+      setPage(1);
     },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
@@ -112,6 +127,7 @@ export default function ShowcaseAdmin() {
       queryClient.invalidateQueries({ queryKey: ["/api/showcase"] });
       toast({ title: "Showcase deleted" });
       setDeleteId(null);
+      setPage(1);
     },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
@@ -167,7 +183,7 @@ export default function ShowcaseAdmin() {
       <Card>
         <CardHeader>
           <CardTitle>Items</CardTitle>
-          <CardDescription>{items.length} showcase item(s)</CardDescription>
+          <CardDescription>{total} showcase item(s)</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -177,42 +193,96 @@ export default function ShowcaseAdmin() {
           ) : items.length === 0 ? (
             <p className="py-8 text-center text-muted-foreground">No showcase items yet. Add one to show on the landing page.</p>
           ) : (
-            <ul className="space-y-3">
-              {items.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3"
-                >
-                  <div className="flex items-center gap-3">
-                    {item.youtubeUrl && (
-                      <div className="h-12 w-20 overflow-hidden rounded bg-muted">
-                        <img
-                          src={`https://img.youtube.com/vi/${getYoutubeId(item.youtubeUrl)}/mqdefault.jpg`}
-                          alt=""
-                          className="h-full w-full object-cover"
-                        />
+            <>
+              <ul className="space-y-3">
+                {items.map((item) => (
+                  <li
+                    key={item.id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      {item.youtubeUrl && (
+                        <div className="h-12 w-20 overflow-hidden rounded bg-muted">
+                          <img
+                            src={`https://img.youtube.com/vi/${getYoutubeId(item.youtubeUrl)}/mqdefault.jpg`}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-medium">{item.scriptName}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {item.gameName} · {item.type}
+                          {" · "}
+                          👍 {item.likeCount ?? 0} · 👁 {item.viewCount ?? 0} · 🎁 {item.tipCount ?? 0}
+                        </p>
                       </div>
-                    )}
-                    <div>
-                      <p className="font-medium">{item.scriptName}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {item.gameName} · {item.type}
-                        {" · "}
-                        👍 {item.likeCount ?? 0} · 👁 {item.viewCount ?? 0} · 🎁 {item.tipCount ?? 0}
-                      </p>
                     </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => openEdit(item)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="sm" className="text-destructive" onClick={() => setDeleteId(item.id)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => openEdit(item)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="sm" className="text-destructive" onClick={() => setDeleteId(item.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              {totalPages > 1 && (
+                <div className="mt-4 flex items-center justify-between border-t pt-4">
+                  <p className="text-sm text-muted-foreground">
+                    Page {page} of {totalPages}
+                  </p>
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setPage((p) => Math.max(1, p - 1));
+                          }}
+                          className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+                        />
+                      </PaginationItem>
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let p: number;
+                        if (totalPages <= 5) p = i + 1;
+                        else if (page <= 3) p = i + 1;
+                        else if (page >= totalPages - 2) p = totalPages - 4 + i;
+                        else p = page - 2 + i;
+                        return (
+                          <PaginationItem key={p}>
+                            <PaginationLink
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setPage(p);
+                              }}
+                              isActive={page === p}
+                            >
+                              {p}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+                      <PaginationItem>
+                        <PaginationNext
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setPage((p) => Math.min(totalPages, p + 1));
+                          }}
+                          className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>

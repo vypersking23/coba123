@@ -73,8 +73,11 @@ function getStatusBadge(status: string) {
       return <Badge variant="default" className="bg-chart-2 text-white">Active</Badge>;
     case "expired":
       return <Badge variant="destructive">Expired</Badge>;
+    case "available":
     case "unused":
-      return <Badge variant="secondary">Unused</Badge>;
+      return <Badge variant="secondary">Available</Badge>;
+    case "sold":
+      return <Badge variant="outline">Sold</Badge>;
     case "blacklisted":
       return <Badge variant="outline" className="border-destructive text-destructive">Blacklisted</Badge>;
     default:
@@ -307,7 +310,8 @@ export default function Keys() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="unused">Unused</SelectItem>
+                  <SelectItem value="available">Available</SelectItem>
+                  <SelectItem value="sold">Sold</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="expired">Expired</SelectItem>
                   <SelectItem value="blacklisted">Blacklisted</SelectItem>

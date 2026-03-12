@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Key, LayoutDashboard, Plus, DollarSign, Settings, LogOut, ExternalLink, LayoutGrid, Package, Users } from "lucide-react";
+import { Key, LayoutDashboard, Plus, DollarSign, Settings, LogOut, ExternalLink, LayoutGrid, Package, Users, ShoppingCart, Star, Gamepad2, User } from "lucide-react";
 import { HeaderLogo } from "@/components/header-logo";
 import {
   Sidebar,
@@ -18,12 +18,16 @@ import { useAuth } from "@/lib/auth";
 
 const menuItems = [
   { title: "Dashboard", url: "/kings/dashboard", icon: LayoutDashboard },
+  { title: "Order Logs", url: "/kings/orders", icon: ShoppingCart },
   { title: "Keys", url: "/kings/keys", icon: Key },
   { title: "Generate Keys", url: "/kings/generate", icon: Plus },
   { title: "Revenue", url: "/kings/revenue", icon: DollarSign },
   { title: "Showcase", url: "/kings/showcase", icon: LayoutGrid },
   { title: "Packages", url: "/kings/packages", icon: Package },
   { title: "Teams", url: "/kings/teams", icon: Users },
+  { title: "Testimonials", url: "/kings/testimonials", icon: Star },
+  { title: "Game Support", url: "/kings/game-support", icon: Gamepad2 },
+  { title: "Users", url: "/kings/users", icon: User },
   { title: "Settings", url: "/kings/settings", icon: Settings },
 ];
 

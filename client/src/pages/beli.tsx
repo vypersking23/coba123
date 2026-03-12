@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HeaderLogo } from "@/components/header-logo";
 import type { Package } from "@shared/schema";
@@ -12,8 +10,6 @@ function formatIdr(value: string | number): string {
 }
 
 export default function BeliSekarang() {
-  const [quantities, setQuantities] = useState<Record<number, number>>({});
-
   const { data: packages = [], isLoading } = useQuery<Package[]>({
     queryKey: ["/api/packages"],
     queryFn: async () => {
@@ -23,15 +19,20 @@ export default function BeliSekarang() {
     },
   });
 
-  const setQty = (id: number, delta: number) => {
-    setQuantities((prev) => {
-      const cur = prev[id] ?? 1;
-      const next = Math.max(1, Math.min(99, cur + delta));
-      return { ...prev, [id]: next };
-    });
-  };
+  const { data: stockData } = useQuery<{
+    items: Array<{ id: number; totalAvailable: number; exactAvailable: number; genericAvailable: number }>;
+  }>({
+    queryKey: ["/api/stocks/packages"],
+    queryFn: async () => {
+      const res = await fetch("/api/stocks/packages");
+      if (!res.ok) return { items: [] };
+      return res.json();
+    },
+  });
 
-  const getQty = (id: number) => quantities[id] ?? 1;
+  const stockById = new Map<number, { totalAvailable: number; exactAvailable: number; genericAvailable: number }>(
+    (stockData?.items || []).map((s) => [s.id, { totalAvailable: s.totalAvailable, exactAvailable: s.exactAvailable, genericAvailable: s.genericAvailable }]),
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,7 +55,7 @@ export default function BeliSekarang() {
 
       <section className="container px-4 py-12 md:py-16">
         <h1 className="font-serif text-3xl font-bold tracking-wide text-center mb-2">Beli Key</h1>
-        <p className="text-center text-muted-foreground mb-10">Pilih paket dan jumlah, lalu beli via Discord.</p>
+        <p className="text-center text-muted-foreground mb-10">Pilih paket, lalu bayar via QRIS.</p>
 
         {isLoading ? (
           <div className="flex justify-center py-16">
@@ -65,8 +66,10 @@ export default function BeliSekarang() {
         ) : (
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
             {packages.map((pkg) => {
-              const qty = getQty(pkg.id);
               const features = [pkg.feature1, pkg.feature2, pkg.feature3, pkg.feature4].filter(Boolean);
+              const price = Number(pkg.price ?? 0) || 0;
+              const original = Number(pkg.originalPrice ?? 0) || 0;
+              const hasDiscount = original > 0 && original > price;
               return (
                 <div
                   key={pkg.id}
@@ -98,36 +101,22 @@ export default function BeliSekarang() {
                           </li>
                         ))}
                       </ul>
-                      <p className="mt-4 text-xl font-bold">IDR {formatIdr(pkg.price ?? 0)}</p>
-                      <div className="mt-4 flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">Jumlah:</span>
-                        <div className="flex items-center rounded-lg border">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-9 w-9 shrink-0"
-                            onClick={() => setQty(pkg.id, -1)}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <span className="min-w-[2rem] text-center text-sm font-medium">{qty}</span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-9 w-9 shrink-0"
-                            onClick={() => setQty(pkg.id, 1)}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
+                      <div className="mt-4">
+                        {hasDiscount ? (
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-sm text-muted-foreground line-through">IDR {formatIdr(original)}</span>
+                            <span className="text-xl font-bold">IDR {formatIdr(price)}</span>
+                          </div>
+                        ) : (
+                          <p className="text-xl font-bold">IDR {formatIdr(price)}</p>
+                        )}
                       </div>
-                      <Button className="mt-4 w-full" asChild>
-                        <a href={pkg.buyLink} target="_blank" rel="noopener noreferrer">
+                      <p className="mt-1 text-sm text-muted-foreground">Sisa key: {stockById.get(pkg.id)?.totalAvailable ?? 0}</p>
+                      <Link href="/login">
+                        <Button className="mt-4 w-full">
                           Beli Sekarang
-                        </a>
-                      </Button>
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </div>

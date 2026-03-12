@@ -6,6 +6,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import type { Team } from "@shared/schema";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -97,10 +105,13 @@ function buildPayload(form: TeamForm) {
 
 export default function TeamsAdmin() {
   const { toast } = useToast();
-  const { data: items = [], isLoading, error } = useQuery<Team[]>({
-    queryKey: ["/api/teams"],
+  const [page, setPage] = useState(1);
+  const pageSize = 9;
+  const { data, isLoading, error } = useQuery<{ items: Team[]; total: number }>({
+    queryKey: ["/api/teams", page],
     queryFn: async () => {
-      const res = await fetch("/api/teams");
+      const offset = (page - 1) * pageSize;
+      const res = await fetch(`/api/teams?limit=${pageSize}&offset=${offset}`);
       if (!res.ok) {
         const text = await res.text();
         let message = "Gagal mengambil data teams";
@@ -115,6 +126,9 @@ export default function TeamsAdmin() {
       return res.json();
     },
   });
+  const items = data?.items || [];
+  const total = data?.total || 0;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Team | null>(null);
@@ -128,6 +142,7 @@ export default function TeamsAdmin() {
       setDialogOpen(false);
       setForm({ ...defaultForm });
       toast({ title: "Anggota ditambahkan" });
+      setPage(1);
     },
     onError: (e: Error) => {
       const msg = e.message.includes("relation") && e.message.includes("teams") ? "Tabel teams belum ada. Jalankan db:push dulu." : e.message;
@@ -154,6 +169,7 @@ export default function TeamsAdmin() {
       queryClient.invalidateQueries({ queryKey: ["/api/teams"] });
       setDeleteId(null);
       toast({ title: "Anggota dihapus" });
+      setPage(1);
     },
     onError: (e: Error) => toast({ title: "Gagal hapus anggota", description: e.message, variant: "destructive" }),
   });
@@ -217,7 +233,7 @@ export default function TeamsAdmin() {
       <Card>
         <CardHeader>
           <CardTitle>Daftar Anggota</CardTitle>
-          <CardDescription>{items.length} orang</CardDescription>
+          <CardDescription>{total} orang</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -234,43 +250,97 @@ export default function TeamsAdmin() {
           ) : items.length === 0 ? (
             <p className="py-8 text-center text-muted-foreground">Belum ada anggota. Tambahkan untuk tampil di landing.</p>
           ) : (
-            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {items.map((item) => (
-                <li key={item.id} className="rounded-xl border p-4 glass flex gap-4">
-                  <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-muted">
-                    {item.photoUrl ? (
-                      <img src={item.photoUrl} alt={item.fullName} className="h-full w-full object-cover" />
-                    ) : null}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold">{item.fullName}</p>
-                    <p className="text-sm text-muted-foreground flex items-center gap-2">
-                      <span className={`h-2 w-2 rounded-full ${ACCENT_DOT[item.accent] ?? "bg-muted-foreground"}`} />
-                      <span className="truncate">{item.role}</span>
-                      <span className="text-xs text-muted-foreground/70">· {ACCENT_LABEL[item.accent] ?? item.accent}</span>
-                    </p>
-                    {item.description ? (
-                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground/90">{item.description}</p>
-                    ) : null}
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {[item.skill1, item.skill2, item.skill3, item.skill4]
-                        .filter(Boolean)
-                        .map((s, i) => (
-                          <span key={i} className="text-xs rounded-full bg-muted px-2 py-0.5">{s}</span>
-                        ))}
+            <>
+              <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {items.map((item) => (
+                  <li key={item.id} className="rounded-xl border p-4 glass flex gap-4">
+                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-muted">
+                      {item.photoUrl ? (
+                        <img src={item.photoUrl} alt={item.fullName} className="h-full w-full object-cover" />
+                      ) : null}
                     </div>
-                  </div>
-                  <div className="flex gap-2 self-start">
-                    <Button variant="outline" size="sm" onClick={() => openEdit(item)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="sm" className="text-destructive" onClick={() => setDeleteId(item.id)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold">{item.fullName}</p>
+                      <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <span className={`h-2 w-2 rounded-full ${ACCENT_DOT[item.accent] ?? "bg-muted-foreground"}`} />
+                        <span className="truncate">{item.role}</span>
+                        <span className="text-xs text-muted-foreground/70">· {ACCENT_LABEL[item.accent] ?? item.accent}</span>
+                      </p>
+                      {item.description ? (
+                        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground/90">{item.description}</p>
+                      ) : null}
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {[item.skill1, item.skill2, item.skill3, item.skill4]
+                          .filter(Boolean)
+                          .map((s, i) => (
+                            <span key={i} className="text-xs rounded-full bg-muted px-2 py-0.5">{s}</span>
+                          ))}
+                      </div>
+                    </div>
+                    <div className="flex gap-2 self-start">
+                      <Button variant="outline" size="sm" onClick={() => openEdit(item)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="sm" className="text-destructive" onClick={() => setDeleteId(item.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              {totalPages > 1 && (
+                <div className="mt-4 flex items-center justify-between border-t pt-4">
+                  <p className="text-sm text-muted-foreground">
+                    Page {page} of {totalPages}
+                  </p>
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setPage((p) => Math.max(1, p - 1));
+                          }}
+                          className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+                        />
+                      </PaginationItem>
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let p: number;
+                        if (totalPages <= 5) p = i + 1;
+                        else if (page <= 3) p = i + 1;
+                        else if (page >= totalPages - 2) p = totalPages - 4 + i;
+                        else p = page - 2 + i;
+                        return (
+                          <PaginationItem key={p}>
+                            <PaginationLink
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setPage(p);
+                              }}
+                              isActive={page === p}
+                            >
+                              {p}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+                      <PaginationItem>
+                        <PaginationNext
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setPage((p) => Math.min(totalPages, p + 1));
+                          }}
+                          className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
